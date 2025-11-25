@@ -5,23 +5,49 @@ import { fileURLToPath } from "url";
 
 import mutasiRoutes from "./routes/mutasi.js";
 import qrisRoutes from "./routes/qrisRoutes.js";
+import transactionRoutes from "./routes/transactionRoutes.js";
+
+import mongoose from "mongoose";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3003;
+
+// ====== MongoDB Connection ======
+const MONGO_URI = "mongodb+srv://xjawwv:azamit@cluster0.pz3ggyt.mongodb.net/qris?appName=Cluster0";
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // ====== Fix path & __dirname ======
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ====== Static files ======
-app.use(express.static(path.join(__dirname, "public"))); // akses global: http://localhost:3002/<file>
-app.use("/qris", express.static(path.join(__dirname, "public/qris"))); // akses: http://localhost:3002/qris/<file>.png
+// ====== Static files ======
+app.use(express.static(path.join(__dirname, "../public"))); // akses global: http://localhost:3003/<file>
+app.use("/qris", express.static(path.join(__dirname, "../public/qris"))); // akses: http://localhost:3002/qris/<file>.png
+
+// ====== Middleware ======
+app.use(express.json());
 
 // ====== Routes ======
+app.use("/", (req, res) => {
+  res.send("Connected");
+});
 app.use("/mutasi", mutasiRoutes);
 app.use("/qris", qrisRoutes);
+app.use("/transaction", transactionRoutes);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ API OrderKuota running at http://localhost:${PORT}`);
+});
+
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use. Please use a different port.`);
+    process.exit(1);
+  } else {
+    console.error(e);
+  }
 });
