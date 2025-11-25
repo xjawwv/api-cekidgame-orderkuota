@@ -37,7 +37,6 @@ app.use("/", (req, res) => {
 });
 app.use("/mutasi", mutasiRoutes);
 app.use("/qris", qrisRoutes);
-app.use("/transaction", transactionRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`✅ API OrderKuota running at http://localhost:${PORT}`);
