@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 
 import mutasiRoutes from "./routes/mutasi.js";
 import qrisRoutes from "./routes/qrisRoutes.js";
-import transactionRoutes from "./routes/transactionRoutes.js";
 
 import mongoose from "mongoose";
 
