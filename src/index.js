@@ -31,7 +31,7 @@ app.use("/qris", express.static(path.join(__dirname, "../public/qris"))); // aks
 app.use(express.json());
 
 // ====== Routes ======
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Connected");
 });
 app.use("/mutasi", mutasiRoutes);
