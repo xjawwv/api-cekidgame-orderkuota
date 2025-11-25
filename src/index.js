@@ -6,17 +6,9 @@ import { fileURLToPath } from "url";
 import mutasiRoutes from "./routes/mutasi.js";
 import qrisRoutes from "./routes/qrisRoutes.js";
 
-import mongoose from "mongoose";
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3003;
-
-// ====== MongoDB Connection ======
-const MONGO_URI = "mongodb+srv://xjawwv:azamit@cluster0.pz3ggyt.mongodb.net/qris?appName=Cluster0";
-mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // ====== Fix path & __dirname ======
 const __filename = fileURLToPath(import.meta.url);
