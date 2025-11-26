@@ -3,10 +3,17 @@ import { checkName } from "../services/orderkuotaService.js";
 
 const router = express.Router();
 
-// helper
+// Helper function to handle check name request
 const handleCheckName = async (req, res, walletType) => {
-  const { phone } = req.params;
+  const { phone } = req.body;
   
+  if (!phone) {
+    return res.status(400).json({
+      status: "error",
+      message: "Phone number is required in body"
+    });
+  }
+
   // credentials
   const username = process.env.OK_USERNAME;
   const token = process.env.OK_TOKEN;
@@ -31,10 +38,10 @@ const handleCheckName = async (req, res, walletType) => {
 };
 
 // endpoint
-router.get("/gopay/:phone", (req, res) => handleCheckName(req, res, "gopay"));
-router.get("/dana/:phone", (req, res) => handleCheckName(req, res, "dana"));
-router.get("/shopeepay/:phone", (req, res) => handleCheckName(req, res, "shopeepay"));
-router.get("/ovo/:phone", (req, res) => handleCheckName(req, res, "ovo"));
-router.get("/linkaja/:phone", (req, res) => handleCheckName(req, res, "linkaja"));
+router.post("/gopay", (req, res) => handleCheckName(req, res, "gopay"));
+router.post("/dana", (req, res) => handleCheckName(req, res, "dana"));
+router.post("/shopeepay", (req, res) => handleCheckName(req, res, "shopeepay"));
+router.post("/ovo", (req, res) => handleCheckName(req, res, "ovo"));
+router.post("/linkaja", (req, res) => handleCheckName(req, res, "linkaja"));
 
 export default router;

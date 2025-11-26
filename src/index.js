@@ -6,16 +6,16 @@ import { fileURLToPath } from "url";
 import mutasiRoutes from "./routes/mutasi.js";
 import qrisRoutes from "./routes/qrisRoutes.js";
 import ewalletRoutes from "./routes/ewalletRoutes.js";
+import gameRoutes from "./routes/gameRoutes.js";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3003;
 
 // ====== Fix path & __dirname ======
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ====== Static files ======
 // ====== Static files ======
 app.use(express.static(path.join(__dirname, "../public"))); // akses global: http://localhost:3003/<file>
 app.use("/qris", express.static(path.join(__dirname, "../public/qris"))); // akses: http://localhost:3002/qris/<file>.png
@@ -31,6 +31,7 @@ app.get("/", (req, res) => {
 app.use("/mutasi", mutasiRoutes);
 app.use("/qris", qrisRoutes);
 app.use("/e-wallet", ewalletRoutes);
+app.use("/game", gameRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`✅ API OrderKuota running at http://localhost:${PORT}`);
