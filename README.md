@@ -111,12 +111,10 @@ Validasi Game ID Mobile Legends (MLBB).
 **Response:**
 ```json
 {
-  "status": "success",
-  "data": {
-    "gameId": "123456789",
-    "zoneId": "1234",
-    "username": "PlayerName"
-  }
+    "gameDetail": {
+        "success": 0,
+        "userName": "Why, Gaaaa???"
+    }
 }
 ```
 
@@ -133,11 +131,10 @@ Validasi Game ID Free Fire.
 **Response:**
 ```json
 {
-  "status": "success",
-  "data": {
-    "gameId": "123456789",
-    "username": "PlayerName"
-  }
+    "gameDetail": {
+        "success": 0,
+        "userName": "F45 eƒdeweツ"
+    }
 }
 ```
 
