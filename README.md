@@ -1,260 +1,317 @@
-# 🔄 Mutasi QRIS API
+# API CekIDGame & OrderKuota
 
-API untuk monitoring mutasi transaksi QRIS melalui OrderKuota dengan fitur long polling dan generator QRIS dinamis.
+API untuk melakukan pengecekan nama e-wallet, validasi Game ID, generate QRIS dinamis, dan cek mutasi transaksi menggunakan integrasi OrderKuota dan DuniaGames.
 
-## ✨ Fitur
+## 📋 Fitur
 
-- 🔍 **Monitoring Mutasi QRIS** - Ambil riwayat transaksi QRIS (masuk/keluar)
-- ⏱️ **Long Polling** - Deteksi transaksi secara real-time dengan polling otomatis
-- 🎯 **Filter Transaksi** - Filter berdasarkan nominal dan waktu transaksi
-- 🖼️ **Generator QRIS** - Generate QR Code QRIS dengan nominal dinamis
-- 🎨 **Pretty JSON Response** - Response API yang mudah dibaca
+- ✅ **E-wallet Checkname** - Validasi nomor telepon untuk berbagai e-wallet (Gopay, Dana, ShopeePay, OVO, LinkAja)
+- 🎮 **Game ID Checkname** - Validasi Game ID untuk Mobile Legends dan Free Fire
+- 💳 **QRIS Generator** - Generate QRIS dinamis dengan nominal custom
+- 📊 **Mutasi Transaksi** - Cek riwayat mutasi transaksi QRIS
 
 ## 🚀 Instalasi
 
 ### Prerequisites
 
 - Node.js (v14 atau lebih tinggi)
-- Akun OrderKuota (harus bisa akun merchant)
+- npm atau yarn
+- Akun OrderKuota (untuk kredensial API)
 
-### Setup
+### Langkah Instalasi
 
-1. **Clone repository**
-   ```bash
-   git clone <repository-url>
-   cd mutasi-qris
-   ```
+1. Clone repository ini:
+```bash
+git clone https://github.com/yourusername/api-cekidgame-orderkuota.git
+cd api-cekidgame-orderkuota
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+2. Install dependencies:
+```bash
+npm install
+```
 
+3. Buat file `.env` di root directory:
+```env
+PORT=3003
+OK_USERNAME=your_orderkuota_username
+OK_TOKEN=your_orderkuota_token
+```
 
-3. **Jalankan aplikasi**
-   ```bash
-   # Development mode
-   npm run dev
-   
-   # Production mode
-   npm start
-   ```
+4. Jalankan aplikasi:
+```bash
+# Development mode
+npm run dev
+
+# Production mode
+npm start
+```
 
 Server akan berjalan di `http://localhost:3003`
 
 ## 📚 API Endpoints
 
-### 1. Health Check
+### 1. E-wallet Checkname
 
-```http
-GET /
-```
+Validasi nomor telepon untuk berbagai e-wallet.
 
-**Response:**
-```
-Connected
-```
+#### **POST** `/e-wallet/gopay`
+Cek nama akun Gopay berdasarkan nomor telepon.
 
----
-
-### 2. Get Mutasi QRIS
-
-Mengambil riwayat transaksi QRIS.
-
-```http
-GET /mutasi/:username/:token?jenis=IN
-```
-
-**Parameters:**
-- `username` (path) - Username OrderKuota
-- `token` (path) - Auth token OrderKuota (format: `userId:token`)
-- `jenis` (query, optional) - Jenis transaksi: `IN` (masuk) atau `OUT` (keluar)
-
-**Example Request:**
-```bash
-curl "http://localhost:3003/mutasi/myusername/2190277:xxxxxxxx?jenis=IN"
+**Request Body:**
+```json
+{
+  "phone": "08123456789"
+}
 ```
 
 **Response:**
 ```json
 {
-  "qris_history": {
-    "success": true,
-    "results": [
-      {
-        "tanggal": "2024-01-20 14:30:25",
-        "kredit": "Rp 15.000",
-        "debit": "",
-        "keterangan": "Transfer QRIS",
-        "saldo": "Rp 100.000"
-      }
-    ]
+  "status": "success",
+  "data": {
+    "name": "John Doe",
+    "phone": "08123456789"
+  }
+}
+```
+
+#### **POST** `/e-wallet/dana`
+Cek nama akun Dana.
+
+#### **POST** `/e-wallet/shopeepay`
+Cek nama akun ShopeePay.
+
+#### **POST** `/e-wallet/ovo`
+Cek nama akun OVO.
+
+#### **POST** `/e-wallet/linkaja`
+Cek nama akun LinkAja.
+
+> **Note:** Semua endpoint e-wallet menggunakan format request dan response yang sama seperti contoh Gopay di atas.
+
+---
+
+### 2. Game ID Checkname
+
+Validasi Game ID untuk berbagai game populer.
+
+#### **POST** `/game/mobile-legends`
+Validasi Game ID Mobile Legends (MLBB).
+
+**Request Body (Format 1):**
+```json
+{
+  "id": "123456789",
+  "zoneId": "1234"
+}
+```
+
+**Request Body (Format 2):**
+```json
+{
+  "id": "123456789(1234)"
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "data": {
+    "gameId": "123456789",
+    "zoneId": "1234",
+    "username": "PlayerName"
+  }
+}
+```
+
+#### **POST** `/game/free-fire`
+Validasi Game ID Free Fire.
+
+**Request Body:**
+```json
+{
+  "id": "123456789"
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "data": {
+    "gameId": "123456789",
+    "username": "PlayerName"
   }
 }
 ```
 
 ---
 
-### 3. Long Polling - Deteksi Transaksi
+### 3. QRIS Generator
 
-Menunggu transaksi dengan nominal tertentu secara real-time.
+Generate QRIS dinamis dengan nominal custom.
 
-```http
-GET /mutasi/:username/:token/:nominal/:starttime
-```
+#### **GET** `/qris/:qris_string/:nominal`
 
 **Parameters:**
-- `username` (path) - Username OrderKuota
-- `token` (path) - Auth token OrderKuota
-- `nominal` (path) - Nominal yang diharapkan (angka saja, tanpa "Rp")
-- `starttime` (path) - Waktu mulai monitoring (format: `HH:MM:SS`)
+- `qris_string` - String QRIS asli
+- `nominal` - Nominal yang ingin di-set (dalam Rupiah)
 
-**Example Request:**
-```bash
-curl "http://localhost:3003/mutasi/myusername/2190277:xxxxxxxx/15000/14:00:00"
+**Example:**
+```
+GET /qris/00020101021126670016ID.CO.SHOPEE.WWW011893600915123456789021234567890303UME51440014ID.CO.QRIS.WWW0215ID20232345678900303UME5204581253033605802ID5913MERCHANT_NAME6011KOTA_JAKARTA61051234062070703A016304ABCD/50000
 ```
 
-**Response (ketika transaksi ditemukan):**
+**Response:**
 ```json
 {
   "success": true,
   "data": {
-    "tanggal": "2024-01-20 14:30:25",
-    "kredit": "Rp 15.000",
-    "debit": "",
-    "keterangan": "Transfer QRIS",
-    "saldo": "Rp 100.000"
+    "qris": "00020101021126670016ID.CO.SHOPEE.WWW...",
+    "nominal": 50000,
+    "image_url": "http://localhost:3003/qris/qris_50000_1234567890.png"
   }
 }
 ```
 
-**Cara Kerja:**
-- API akan melakukan polling setiap 5 detik
-- Mencari transaksi dengan nominal yang sesuai
-- Hanya mendeteksi transaksi setelah `starttime`
-- Response dikirim segera setelah transaksi ditemukan
-- Connection otomatis ditutup jika client disconnect
+> **Note:** File QR Code akan disimpan di folder `public/qris/` dan dapat diakses melalui URL yang dikembalikan.
 
 ---
 
-### 4. Generate QRIS dengan Nominal
+### 4. Mutasi Transaksi
 
-Generate QR Code QRIS dengan nominal dinamis.
+Cek riwayat mutasi transaksi QRIS.
 
-```http
-GET /qris/:qris_string/:nominal
-```
+#### **GET** `/mutasi/:username/:token`
 
 **Parameters:**
-- `qris_string` (path) - String QRIS dasar (tanpa nominal)
-- `nominal` (path) - Nominal yang akan di-embed ke QRIS
+- `username` - Username OrderKuota
+- `token` - Token OrderKuota
 
-**Example Request:**
-```bash
-curl "http://localhost:3003/qris/00020101021126670016COM.NOBUBANK.WWW01189360050300000898740214545006011234560303UMI51440014ID.CO.QRIS.WWW0215ID10200000000150303UMI5204581253033605802ID5906TOKO A6015KOTA YOGYAKARTA61055511262070703A016304/15000"
+**Query Parameters:**
+- `jenis` (optional) - Jenis mutasi (default: semua)
+
+**Example:**
+```
+GET /mutasi/your_username/your_token?jenis=qris
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "data": {
-    "qris": "00020101021126670016COM.NOBUBANK.WWW...",
-    "nominal": 15000,
-    "image_url": "http://localhost:3003/qris/qris_15000_1756289132457.png"
-  }
+  "data": [
+    {
+      "id": "TRX123456",
+      "amount": 50000,
+      "type": "credit",
+      "description": "QRIS Payment",
+      "timestamp": "2025-11-26T12:00:00Z"
+    }
+  ]
 }
 ```
 
-**Output:**
-- QR Code disimpan di folder `src/public/qris/`
-- Dapat diakses via URL yang dikembalikan
-- Format file: `qris_{nominal}_{timestamp}.png`
-
 ---
 
-## 🏗️ Struktur Folder
+## 🛠️ Struktur Folder
 
 ```
-mutasi-qris/
+api-cekidgame-orderkuota/
 ├── src/
-│   ├── index.js                    # Entry point aplikasi
 │   ├── routes/
-│   │   ├── mutasi.js               # Routes untuk mutasi QRIS
-│   │   └── qrisRoutes.js           # Routes untuk generate QRIS
+│   │   ├── ewalletRoutes.js    # Routes untuk e-wallet checkname
+│   │   ├── gameRoutes.js        # Routes untuk game ID validation
+│   │   ├── mutasi.js            # Routes untuk mutasi transaksi
+│   │   └── qrisRoutes.js        # Routes untuk QRIS generator
 │   ├── services/
-│   │   └── orderkuotaService.js    # Service OrderKuota API
+│   │   ├── orderkuotaService.js # Service OrderKuota API
+│   │   └── duniagamesService.js # Service DuniaGames API
 │   ├── utils/
-│   │   ├── env.js                  # Environment utilities
-│   │   ├── logger.js               # Logging utilities
-│   │   └── qrisGenerator.js        # QRIS generator logic
-│   └── public/
-│       └── qris/                   # Generated QR codes
-├── .env                            # Environment variables
+│   │   ├── env.js               # Environment utilities
+│   │   ├── logger.js            # Logging utilities
+│   │   └── qrisGenerator.js     # QRIS generation logic
+│   └── index.js                 # Entry point
+├── public/
+│   └── qris/                    # Folder untuk menyimpan QR codes
+├── .env                         # Environment variables
 ├── .gitignore
 ├── package.json
 └── README.md
 ```
 
-## 🔧 Teknologi
+## 🔐 Environment Variables
 
-- **Express.js** - Web framework
-- **Axios** - HTTP client untuk OrderKuota API
-- **QRCode** - Generator QR Code
-- **Chalk** - Colored console logging
-- **Dotenv** - Environment variable management
+Buat file `.env` dengan konfigurasi berikut:
 
-## 📝 Logging
-
-API menggunakan colored logging untuk memudahkan monitoring:
-
-- 🔵 **INFO** - Informasi umum (polling start, dll)
-- 🟢 **SUCCESS** - Transaksi berhasil ditemukan
-- 🟡 **WARN** - Warning (client disconnect, data kosong)
-- 🔴 **ERROR** - Error yang terjadi
-
-**Example Log:**
-```
-[14:30:25][INFO] Polling start User=myuser, Nominal=15000, StartTime=14:00:00
-[14:30:30][SUCCESS] Transaksi ditemukan untuk myuser (Nominal=Rp 15.000, Jam=2024-01-20 14:30:25)
-```
-
-## 🔐 Keamanan
-
-> [!WARNING]
-> **Jangan commit file `.env` ke repository!** File ini berisi kredensial sensitif.
-
-## 🐛 Troubleshooting
-
-### Port sudah digunakan
-
-Jika port 3003 sudah digunakan, ubah di file `.env`:
 ```env
-PORT=3004
+# Server Configuration
+PORT=3003
+
+# OrderKuota Credentials
+OK_USERNAME=your_orderkuota_username
+OK_TOKEN=your_orderkuota_token
 ```
 
-### Transaksi tidak terdeteksi
+## 📝 Error Handling
 
-Periksa:
-1. Format `starttime` sudah benar (HH:MM:SS)
-2. Nominal sesuai dengan yang ada di transaksi
-3. Token masih valid
-4. Environment variables sudah dikonfigurasi dengan benar
+API ini menggunakan format error response yang konsisten:
 
-## 📄 License
+```json
+{
+  "status": "error",
+  "message": "Error description here"
+}
+```
 
-MIT License
+**Common Error Codes:**
+- `400` - Bad Request (parameter tidak valid)
+- `500` - Internal Server Error (kesalahan server atau API eksternal)
 
-## 👨‍💻 Author
+## 🧪 Testing
 
-Dibuat dengan ❤️ untuk monitoring transaksi QRIS
+Anda dapat menggunakan tools seperti Postman, Insomnia, atau curl untuk testing API.
 
----
+### Contoh Testing dengan curl:
+
+```bash
+# Test E-wallet Checkname (Gopay)
+curl -X POST http://localhost:3003/e-wallet/gopay \
+  -H "Content-Type: application/json" \
+  -d '{"phone": "08123456789"}'
+
+# Test Game ID Checkname (Mobile Legends)
+curl -X POST http://localhost:3003/game/mobile-legends \
+  -H "Content-Type: application/json" \
+  -d '{"id": "123456789", "zoneId": "1234"}'
+
+# Test QRIS Generator
+curl http://localhost:3003/qris/YOUR_QRIS_STRING/50000
+
+# Test Mutasi
+curl http://localhost:3003/mutasi/your_username/your_token
+```
 
 ## 🤝 Contributing
 
-Contributions, issues, dan feature requests sangat diterima!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## ⭐ Support
+## 📄 License
 
-Jika project ini membantu, berikan ⭐ di repository!
+This project is licensed under the ISC License.
+
+## 👨‍💻 Author
+
+**xJAWW**
+
+## 🙏 Acknowledgments
+
+- [OrderKuota](https://orderkuota.id) - E-wallet API provider
+- [DuniaGames](https://duniagames.co.id) - Game ID validation provider
+- [Express.js](https://expressjs.com) - Web framework
+- [QRCode](https://www.npmjs.com/package/qrcode) - QR code generator
+
+---
+
+**⚠️ Disclaimer:** API ini dibuat untuk keperluan edukasi dan development. Pastikan Anda memiliki izin yang sesuai sebelum menggunakan API pihak ketiga dalam production.
