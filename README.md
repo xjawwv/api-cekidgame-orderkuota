@@ -57,6 +57,20 @@ Validasi nomor telepon untuk berbagai e-wallet.
 #### **POST** `/e-wallet/gopay`
 Cek nama akun Gopay berdasarkan nomor telepon.
 
+
+#### **POST** `/e-wallet/dana`
+Cek nama akun Dana.
+
+#### **POST** `/e-wallet/shopeepay`
+Cek nama akun ShopeePay.
+
+#### **POST** `/e-wallet/ovo`
+Cek nama akun OVO.
+
+#### **POST** `/e-wallet/linkaja`
+Cek nama akun LinkAja.
+
+    > **Note:** Semua endpoint e-wallet menggunakan format request dan response yang sama seperti contoh Gopay di atas.
 **Request Body:**
 ```json
 {
@@ -75,19 +89,6 @@ Cek nama akun Gopay berdasarkan nomor telepon.
 }
 ```
 
-#### **POST** `/e-wallet/dana`
-Cek nama akun Dana.
-
-#### **POST** `/e-wallet/shopeepay`
-Cek nama akun ShopeePay.
-
-#### **POST** `/e-wallet/ovo`
-Cek nama akun OVO.
-
-#### **POST** `/e-wallet/linkaja`
-Cek nama akun LinkAja.
-
-> **Note:** Semua endpoint e-wallet menggunakan format request dan response yang sama seperti contoh Gopay di atas.
 
 ---
 
