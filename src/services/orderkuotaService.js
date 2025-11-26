@@ -25,7 +25,7 @@ const SIG_TS       = process.env.OK_SIGNATURE_TIMESTAMP || "";
  * @param {Record<string, any>} obj - The object to encode.
  * @returns {string} The URL-encoded string.
  */
-function encodeForm(obj) {
+export function encodeForm(obj) {
   return Object.entries(obj)
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v ?? "")}`)
     .join("&");
@@ -91,4 +91,75 @@ export async function getMutasi(username, token, jenis = "") {
   // If the server rejects the request, data.qris_history.success might be false.
   // The polling logic in index.js will handle this.
   return data;
+}
+
+/**
+ * Checks the name of an E-wallet account.
+ * @param {string} username - The user's username.
+ * @param {string} token - The user's authentication token.
+ * @param {string} phone - The phone number to check.
+ * @param {string} walletType - The type of e-wallet (gopay, dana, shopeepay, ovo, linkaja).
+ * @returns {Promise<any>} The data returned from the API.
+ */
+export async function checkName(username, token, phone, walletType) {
+  const userId = String((token || "").split(":")[0] || "").trim();
+  
+  // Constants observed from the user's request
+  const PRODUCT_HASH = "34ca651a6bfe0325fe99d37395132243c95a8fea49";
+  const UNKNOWN_ID = "26";
+  
+  // Construct the URL
+  // https://checker.orderkuota.com/api/checkname/produk/{hash}/{id}/{userId}/{walletType}
+  const baseUrl = `https://checker.orderkuota.com/api/checkname/produk/${PRODUCT_HASH}/${UNKNOWN_ID}/${userId}/${walletType}`;
+  
+  // Query parameters
+  const queryParams = new URLSearchParams({
+    phone: phone,
+    cust_id: "",
+    b: "2282", // Mocked values from capture
+    t: "89176e71"
+  });
+  
+  const url = `${baseUrl}?${queryParams.toString()}`;
+
+  const headers = {
+    "User-Agent": "okhttp/4.12.0",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept-Encoding": "gzip",
+    "x-app-version-name": APP_VERSION_NAME,
+    "x-app-version-code": APP_VERSION_CODE,
+    "x-app-package": APP_PACKAGE,
+  };
+  if (SIG)    headers["signature"] = SIG;
+  if (SIG_TS) headers["timestamp"] = SIG_TS;
+
+  const nowMs = Date.now();
+  const form = {
+    app_reg_id: APP_REG_ID,
+    phone_uuid: PHONE_UUID,
+    phone_model: PHONE_MODEL,
+    phoneNumber: phone,
+    request_time: String(nowMs),
+    phone_android_version: PHONE_ANDROID_VERSION,
+    app_version_code: APP_VERSION_CODE,
+    auth_username: username,
+    customerId: "",
+    id: walletType,
+    auth_token: token,
+    app_version_name: APP_VERSION_NAME,
+    ui_mode: UI_MODE
+  };
+
+  const body = encodeForm(form);
+
+  try {
+    const { data } = await axios.post(url, body, { headers });
+    return data;
+  } catch (error) {
+    // Handle axios errors
+    if (error.response) {
+      throw new Error(error.response.data.message || error.message);
+    }
+    throw error;
+  }
 }

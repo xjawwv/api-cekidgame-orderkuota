@@ -5,10 +5,11 @@ import { fileURLToPath } from "url";
 
 import mutasiRoutes from "./routes/mutasi.js";
 import qrisRoutes from "./routes/qrisRoutes.js";
+import ewalletRoutes from "./routes/ewalletRoutes.js";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT;
 
 // ====== Fix path & __dirname ======
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +22,7 @@ app.use("/qris", express.static(path.join(__dirname, "../public/qris"))); // aks
 
 // ====== Middleware ======
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ====== Routes ======
 app.get("/", (req, res) => {
@@ -28,6 +30,7 @@ app.get("/", (req, res) => {
 });
 app.use("/mutasi", mutasiRoutes);
 app.use("/qris", qrisRoutes);
+app.use("/e-wallet", ewalletRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`✅ API OrderKuota running at http://localhost:${PORT}`);
