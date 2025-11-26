@@ -7,7 +7,7 @@ API untuk melakukan pengecekan nama e-wallet, validasi Game ID, generate QRIS di
 - ✅ **E-wallet Checkname** - Validasi nomor telepon untuk berbagai e-wallet (Gopay, Dana, ShopeePay, OVO, LinkAja)
 - 🎮 **Game ID Checkname** - Validasi Game ID untuk Mobile Legends dan Free Fire
 - 💳 **QRIS Generator** - Generate QRIS dinamis dengan nominal custom
-- 📊 **Mutasi Transaksi** - Cek riwayat mutasi transaksi QRIS
+- 📊 **Mutasi Transaksi** - Cek riwayat mutasi transaksi QRIS Orderkuota
 
 ## 🚀 Instalasi
 
