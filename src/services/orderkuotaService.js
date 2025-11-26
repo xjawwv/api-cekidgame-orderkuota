@@ -1,5 +1,6 @@
 // src/services/orderkuotaService.js
 import axios from "axios";
+import { addProxyIfNeeded } from "../utils/proxyUtils.js";
 
 const API_ORIGIN = "https://app.orderkuota.com";
 const API_QRIS   = `${API_ORIGIN}/api/v2/qris/mutasi`; // /:userId
@@ -86,7 +87,10 @@ export async function getMutasi(username, token, jenis = "") {
   const url = `${API_QRIS}/${encodeURIComponent(userId)}`;
   const body = encodeForm(form);
 
-  const { data } = await axios.post(url, body, { headers });
+  // Add random proxy for app.orderkuota.com requests
+  const axiosConfig = addProxyIfNeeded(url, { headers });
+
+  const { data } = await axios.post(url, body, axiosConfig);
 
   // If the server rejects the request, data.qris_history.success might be false.
   // The polling logic in index.js will handle this.
@@ -153,7 +157,11 @@ export async function checkName(username, token, phone, walletType) {
   const body = encodeForm(form);
 
   try {
-    const { data } = await axios.post(url, body, { headers });
+    // Add random proxy if URL is app.orderkuota.com
+    // Note: checker.orderkuota.com will NOT use proxy
+    const axiosConfig = addProxyIfNeeded(url, { headers });
+    
+    const { data } = await axios.post(url, body, axiosConfig);
     return data;
   } catch (error) {
     // Handle axios errors
