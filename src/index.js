@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, "../public"))); // akses global: htt
 app.use("/qris", express.static(path.join(__dirname, "../public/qris"))); // akses: http://localhost:3002/qris/<file>.png
 
 // ====== Middleware ======
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 
 // ====== Routes ======
