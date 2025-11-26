@@ -99,7 +99,7 @@ Validasi Game ID untuk berbagai game populer.
 #### **POST** `/game/mobile-legends`
 Validasi Game ID Mobile Legends (MLBB).
 
-**Request Body (Format 1):**
+**Request Body:**
 ```json
 {
   "id": "123456789",
@@ -107,12 +107,6 @@ Validasi Game ID Mobile Legends (MLBB).
 }
 ```
 
-**Request Body (Format 2):**
-```json
-{
-  "id": "123456789(1234)"
-}
-```
 
 **Response:**
 ```json
@@ -315,4 +309,4 @@ This project is licensed under the ISC License.
 
 ---
 
-**⚠️ Disclaimer:** API ini dibuat untuk keperluan edukasi dan development. Pastikan Anda memiliki izin yang sesuai sebelum menggunakan API pihak ketiga dalam production.
+**⚠️ Disclaimer:** API ini dibuat untuk keperluan developemnt ya jing.
