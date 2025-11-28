@@ -108,4 +108,27 @@ router.post("/growtopia", async (req, res) => {
   }
 });
 
+// genshin impact
+router.post("/genshin-impact", async (req, res) => {
+  const { id, serverId, serverName } = req.body;
+
+  if (!id || !serverId || !serverName) {
+    return res.status(400).json({
+      status: "error",
+      message: "Fields 'id', 'serverId', and 'serverName' are required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('genshin-impact', id, null, { serverId, serverName });
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME GENSHIN] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
 export default router;

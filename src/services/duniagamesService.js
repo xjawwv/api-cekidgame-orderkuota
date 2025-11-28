@@ -55,17 +55,28 @@ const GAME_CONFIG = {
     catalogId: 2694,
     paymentId: 7451,
     requiresZoneId: false
+  },
+  'genshin-impact': {
+    productId: 187,
+    itemId: 2127,
+    product_ref: 'REG',
+    product_ref_denom: 'REG',
+    catalogId: 3305,
+    paymentId: 8919,
+    requiresZoneId: false,
+    requiresServer: true,
   }
 };
 
 /**
  * Check game ID for specific games.
- * @param {string} gameCode - The internal game code ('mobile-legends', 'free-fire', 'arena-of-valor', or 'growtopia').
+ * @param {string} gameCode - Internal game code.
  * @param {string} gameId - The user ID in the game.
  * @param {string|null} zoneId - The zone ID (required for MLBB, null for others).
+ * @param {object} extraParams - Additional params per game (e.g., serverId, serverName).
  * @returns {Promise<any>} API response data.
  */
-export async function checkGameId(gameCode, gameId, zoneId = null) {
+export async function checkGameId(gameCode, gameId, zoneId = null, extraParams = {}) {
   const config = GAME_CONFIG[gameCode];
 
   if (!config) {
@@ -84,8 +95,18 @@ export async function checkGameId(gameCode, gameId, zoneId = null) {
   };
   
   if (config.requiresZoneId) {
-    if (!zoneId) throw new Error(`${gameCode} requires a Zone ID.`);
-    payload.zoneId = zoneId;
+    const resolvedZoneId = extraParams.zoneId || zoneId;
+    if (!resolvedZoneId) throw new Error(`${gameCode} requires a Zone ID.`);
+    payload.zoneId = resolvedZoneId;
+  }
+
+  if (config.requiresServer) {
+    const { serverId, serverName } = extraParams;
+    if (!serverId || !serverName) {
+      throw new Error(`${gameCode} requires serverId and serverName.`);
+    }
+    payload.serverId = serverId;
+    payload.serverName = serverName;
   }
 
   // Merge base headers with game-specific extra headers
@@ -102,8 +123,14 @@ export async function checkGameId(gameCode, gameId, zoneId = null) {
     return data;
   } catch (error) {
     if (error.response) {
+      // Handle 400 error (ID not found)
+      if (error.response.status === 400) {
+        throw new Error("ID game tidak ditemukan atau tidak valid");
+      }
+      // Handle other HTTP errors
       throw new Error(error.response.data.message || error.message);
     }
+    // Handle network or other errors
     throw error;
   }
 }
