@@ -102,8 +102,14 @@ export async function checkGameId(gameCode, gameId, zoneId = null) {
     return data;
   } catch (error) {
     if (error.response) {
+      // Handle 400 error (ID not found)
+      if (error.response.status === 400) {
+        throw new Error("ID game tidak ditemukan atau tidak valid");
+      }
+      // Handle other HTTP errors
       throw new Error(error.response.data.message || error.message);
     }
+    // Handle network or other errors
     throw error;
   }
 }
