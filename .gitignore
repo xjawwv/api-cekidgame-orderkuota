@@ -9,4 +9,6 @@ package-lock.json
 dist/
 build/
 
+src/public/qris/
+
 *.log

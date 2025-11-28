@@ -62,4 +62,50 @@ router.post("/free-fire", async (req, res) => {
   }
 });
 
+// arena of valor
+router.post("/arena-of-valor", async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      message: "Game ID is required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('arena-of-valor', id);
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME AOV] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
+// growtopia
+router.post("/growtopia", async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      message: "Game ID is required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('growtopia', id);
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME GROWTOPIA] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
 export default router;
