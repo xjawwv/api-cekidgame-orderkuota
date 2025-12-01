@@ -131,4 +131,27 @@ router.post("/genshin-impact", async (req, res) => {
   }
 });
 
+//valorant
+router.post("/valorant", async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      message: "Game ID is required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('valorant', id);
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME VALORANT] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
 export default router;

@@ -65,6 +65,15 @@ const GAME_CONFIG = {
     paymentId: 8919,
     requiresZoneId: false,
     requiresServer: true,
+  },
+    'valorant': {
+    productId: 170,
+    itemId: 1871,
+    product_ref: 'REG',
+    product_ref_denom: 'REG',
+    catalogId: 3049,
+    paymentId: 8400,
+    requiresZoneId: false,
   }
 };
 
