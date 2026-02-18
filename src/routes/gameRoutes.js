@@ -62,4 +62,73 @@ router.post("/free-fire", async (req, res) => {
   }
 });
 
+// arena of valor
+router.post("/arena-of-valor", async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      message: "Game ID is required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('arena-of-valor', id);
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME AOV] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
+// genshin impact
+router.post("/genshin-impact", async (req, res) => {
+  const { id, serverId, serverName } = req.body;
+
+  if (!id || !serverId || !serverName) {
+    return res.status(400).json({
+      status: "error",
+      message: "Fields 'id', 'serverId', and 'serverName' are required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('genshin-impact', id, null, { serverId, serverName });
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME GENSHIN] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
+//valorant
+router.post("/valorant", async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      message: "Game ID is required in body"
+    });
+  }
+
+  try {
+    const data = await checkGameId('valorant', id);
+    res.json(data);
+  } catch (err) {
+    console.error("[CHECKGAME VALORANT] Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message
+    });
+  }
+});
+
 export default router;

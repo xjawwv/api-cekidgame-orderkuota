@@ -190,22 +190,59 @@ GET /mutasi/your_username/your_token?jenis=qris
 ```
 
 **Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
       "id": "TRX123456",
       "amount": 50000,
       "type": "credit",
       "description": "QRIS Payment",
       "timestamp": "2025-11-26T12:00:00Z"
     }
-  ]
+    ]
+  }
+  ```
+
+#### **GET** `/mutasi/:username/:token/:nominal/:time`
+
+- `nominal` - Nominal yang ingin dicari (Rupiah)
+- `time` - Jam mulai pengecekan mutasi (format `HH.MM` atau `HH:MM`, contoh `00.58`)
+- Query `jenis` opsional sama seperti endpoint di atas
+
+Endpoint ini mengambil data mutasi sekali, lalu mencari transaksi dengan nominal tersebut pada rentang waktu mulai `time` sampai 10 menit setelahnya (bukan long polling).
+
+**Example:**
+```
+GET /mutasi/your_username/your_token/50000/00.58
+```
+
+**Response (ditemukan setelah jam yang ditentukan):**
+```json
+{
+  "success": true,
+  "message": "Transaksi ditemukan",
+  "nominal": 50000,
+  "window_minutes": 10,
+  "match": {
+    "id": "TRX123456",
+    "jumlah": "50000",
+    "description": "QRIS Payment",
+    "timestamp": "2025-11-26T12:00:00Z"
+  }
 }
 ```
 
----
+**Response (tidak ditemukan):**
+```json
+{
+  "success": false,
+  "message": "Tidak ada transaksi nominal 50000 sejak 00.58 (jangka 10 menit)"
+}
+```
+  
+  ---
 
 ## 🛠️ Struktur Folder
 
