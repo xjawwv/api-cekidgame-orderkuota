@@ -1,8 +1,11 @@
 import express from "express";
 import { getMutasi } from "../services/orderkuotaService.js";
+import { getEnv } from "../utils/env.js";
 import chalk from "chalk";
 
 const router = express.Router();
+
+// simple polling route will be used below
 
 const getTimestamp = () => {
   const now = new Date();
@@ -197,6 +200,95 @@ router.get("/:username/:token/:nominal/:time", async (req, res) => {
     sendPrettyJSON(res, 500, { success: false, message: err.message });
   }
 });
+
+router.get("/xjaww/:nominal/:time", async (req, res) => {
+  const username = getEnv("username") || getEnv("OK_USERNAME") || process.env.OK_USERNAME;
+  const token = getEnv("token") || getEnv("OK_TOKEN") || process.env.OK_TOKEN;
+
+  const { nominal, time } = req.params;
+  const targetNominal = toInt(nominal);
+  const startMinutes = parseTimeParam(time);
+
+  if (targetNominal === null) {
+    return sendPrettyJSON(res, 400, { success: false, message: "Nominal tidak valid" });
+  }
+
+  if (startMinutes === null) {
+    return sendPrettyJSON(res, 400, { success: false, message: "Format time tidak valid (gunakan HH.MM atau HH:MM, contoh 00.58)" });
+  }
+
+  if (!username || !token) {
+    return sendPrettyJSON(res, 500, { success: false, message: "Konfigurasi username/token tidak ditemukan di .env" });
+  }
+
+
+  // start polling and hold the HTTP response until found or timeout
+  const intervalMs = 5000; // poll setiap 5 detik
+  const maxMs = WINDOW_MINUTES * 60 * 1000; // batas atas 10 menit
+
+  let finished = false;
+  const cleanup = (intervalId, timeoutId) => {
+    if (intervalId) clearInterval(intervalId);
+    if (timeoutId) clearTimeout(timeoutId);
+  };
+
+  const attempt = async () => {
+    try {
+      const data = await getMutasi(username, token);
+      const match = findMatchingTransaction(data, targetNominal, startMinutes);
+      if (match) {
+        finished = true;
+        return { found: true, match, data };
+      }
+      return { found: false };
+    } catch (err) {
+      logError(`[MUTASI:xjaww] ${err.message}`);
+      return { found: false, error: err };
+    }
+  };
+
+  try {
+    const first = await attempt();
+    if (first.found) {
+      return sendPrettyJSON(res, 200, { success: true, message: "Transaksi ditemukan", nominal: targetNominal, time_from: time, window_minutes: WINDOW_MINUTES, match: first.match });
+    }
+
+    const intervalId = setInterval(async () => {
+      if (finished) return;
+      const result = await attempt();
+      if (result.found) {
+        cleanup(intervalId, timeoutId);
+        finished = true;
+        try {
+          sendPrettyJSON(res, 200, { success: true, message: "Transaksi ditemukan", nominal: targetNominal, time_from: time, window_minutes: WINDOW_MINUTES, match: result.match });
+        } catch (e) {
+          /* client disconnected */
+        }
+      }
+    }, intervalMs);
+
+    const timeoutId = setTimeout(() => {
+      if (finished) return;
+      cleanup(intervalId, timeoutId);
+      finished = true;
+      try {
+        sendPrettyJSON(res, 404, { success: false, message: `Tidak ada transaksi nominal ${targetNominal} sejak ${time} (jangka ${WINDOW_MINUTES} menit)` });
+      } catch (e) {
+        /* client disconnected */
+      }
+    }, maxMs);
+
+    req.on("close", () => {
+      cleanup(intervalId, timeoutId);
+      finished = true;
+    });
+  } catch (err) {
+    logError(`[MUTASI:xjaww] ${err.message}`);
+    return sendPrettyJSON(res, 500, { success: false, message: err.message });
+  }
+});
+
+  // no SSE: simple polling-only behavior (response handled above)
 
 
 

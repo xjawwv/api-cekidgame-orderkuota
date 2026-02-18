@@ -85,29 +85,6 @@ router.post("/arena-of-valor", async (req, res) => {
   }
 });
 
-// growtopia
-router.post("/growtopia", async (req, res) => {
-  const { id } = req.body;
-
-  if (!id) {
-    return res.status(400).json({
-      status: "error",
-      message: "Game ID is required in body"
-    });
-  }
-
-  try {
-    const data = await checkGameId('growtopia', id);
-    res.json(data);
-  } catch (err) {
-    console.error("[CHECKGAME GROWTOPIA] Error:", err.message);
-    res.status(500).json({
-      status: "error",
-      message: err.message
-    });
-  }
-});
-
 // genshin impact
 router.post("/genshin-impact", async (req, res) => {
   const { id, serverId, serverName } = req.body;

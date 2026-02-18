@@ -47,15 +47,6 @@ const GAME_CONFIG = {
     paymentId: 757,
     requiresZoneId: false
   },
-  'growtopia': {
-    productId: 143,
-    itemId: 1512,
-    product_ref: 'REG',
-    product_ref_denom: 'REG',
-    catalogId: 2694,
-    paymentId: 7451,
-    requiresZoneId: false
-  },
   'genshin-impact': {
     productId: 187,
     itemId: 2127,
